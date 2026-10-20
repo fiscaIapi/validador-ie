@@ -28,7 +28,7 @@
 | AM | 9 | 04.123.456-1 | 1 | mod 11 (caso especial soma < 11) | — |
 | BA | 8 ou 9 | 234567-76 / 0612345-57 | 2 | mod 10 **ou** 11 conforme 1º/2º dígito; 2º DV calculado primeiro | — |
 | CE | 9 | 06123456-7 | 1 | mod 11 padrão | — |
-| DF | 13 | 07312345001-87 | 2 | igual ao AC | 07 |
+| DF | 13 | 07312345001-87 | 2 | igual ao AC | 07 ou 08 |
 | ES | 9 | 081.234.56-2 | 1 | mod 11 padrão | — |
 | GO | 9 | 10.123.456-2 | 1 | mod 11 padrão (+ regra legada) | 10, 11, 20–29 (e 15, legado) |
 | MA | 9 | 12.123.456-8 | 1 | mod 11 padrão | 12 |
@@ -76,8 +76,8 @@ inicial em SP); recusa "ISENTO"; recusa sequência de um dígito só repetido (`
 - **Exemplo sintético — 24.076.543-5:** 2×9 + 4×8 + 0×7 + 7×6 + 6×5 + 5×4 + 4×3 + 3×2 = 160; 160 × 10 = 1600;
   1600 mod 11 = **5**.
 - **Exemplo oficial:** 24000004-8 (soma 58 → 580 mod 11 = 8).
-- **Decisão:** a lib **não** valida o 3º dígito (tipo de empresa) — a lista do roteiro é antiga e
-  não sabemos se a SEFAZ-AL emitiu outros códigos; recusar seria falso negativo. Verificar.
+- **Decisão:** a lib **não** valida o 3º dígito (tipo de empresa). A lista do roteiro é antiga e há IEs
+  reais com tipo fora dela (ex.: `2422…`); recusar seria falso negativo.
 - **Fonte:** http://www.sintegra.gov.br/Cad_Estados/cad_AL.html
 
 ## AP — Amapá
@@ -135,14 +135,15 @@ inicial em SP); recusa "ISENTO"; recusa sequência de um dígito só repetido (`
 
 ## DF — Distrito Federal
 
-- **Dígitos:** 13. **Composição:** `07` + número sequencial (6) + `001` matriz / `002…` filiais + 2 DVs.
+- **Dígitos:** 13. **Composição:** `07` ou `08` + número sequencial (6) + `001` matriz / `002…` filiais + 2 DVs.
 - **Algoritmo:** idêntico ao AC (pesos 4,3,2,9..2 e 5,4,3,2,9..2; módulo 11 padrão).
 - **Exemplo sintético — 07312345001-87:**
   - DV1: 0×4 + 7×3 + 3×2 + 1×9 + 2×8 + 3×7 + 4×6 + 5×5 + 0×4 + 0×3 + 1×2 = 124; 124 mod 11 = 3; 11 − 3 = **8**
   - DV2: 0×5 + 7×4 + 3×3 + 1×2 + 2×9 + 3×8 + 4×7 + 5×6 + 0×5 + 0×4 + 1×3 + 8×2 = 158; 158 mod 11 = 4; 11 − 4 = **7**
 - **Exemplo oficial:** 07300001001-09 (o roteiro do DF é uma imagem: `df1t.gif`, `df2t.gif`).
-- **Divergência:** a lib `js-brasil` aceita prefixo `07` **ou `08`**; código VB antigo citado em fórum exige `073`.
-  Adotamos `07` (composição do roteiro). Verificar com consulta real se existem IEs `08…`.
+- **Prefixo `08`:** o roteiro mostra só `07`, mas o DF já emite inscrições começando com `08` (há dezenas delas
+  em editais publicados no DODF em 2025, todas com DV correto pelo mesmo cálculo). A biblioteca aceita `07` e `08`,
+  como ACBr e `js-brasil`.
 - **Fonte:** http://www.sintegra.gov.br/Cad_Estados/cad_DF.html
 
 ## ES — Espírito Santo
@@ -170,7 +171,7 @@ inicial em SP); recusa "ISENTO"; recusa sequência de um dígito só repetido (`
 - **Exemplo sintético — 12.123.456-8:** 1×9 + 2×8 + 1×7 + 2×6 + 3×5 + 4×4 + 5×3 + 6×2 = 102; 102 mod 11 = 3; 11 − 3 = **8**.
 - **Exemplo oficial:** 12000038-5.
 - **Nota:** a SEFAZ-MA anunciou em 07/2026 nova lógica de *geração* (reuso de lacunas), sem mudar
-  estrutura (9 dígitos, prefixo 12) — fonte: notícia COAD de 24/07/2026.
+  estrutura (9 dígitos, prefixo 12) nem o cálculo do DV — fonte: notícia COAD de 24/07/2026.
 - **Fonte:** http://www.sintegra.gov.br/Cad_Estados/cad_MA.html
 
 ## MT — Mato Grosso
@@ -337,7 +338,8 @@ inicial em SP); recusa "ISENTO"; recusa sequência de um dígito só repetido (`
 - **Exemplo sintético — 29.123.456-9:** 2×9 + 9×8 + 1×7 + 2×6 + 3×5 + 4×4 + 5×3 + 6×2 = 167; 167 mod 11 = 2; 11 − 2 = **9**.
   (O mesmo número no formato antigo seria 29.01.123456-9 — o DV não muda.)
 - **Exemplo oficial:** 29 01 022783 6.
-- **Pendência:** não achamos documento oficial da SEFAZ-TO sobre o formato de 9 dígitos. Verificar com consulta real.
+- **Formato de 9 dígitos:** não há roteiro oficial publicado para ele, mas é o formato das IEs atuais publicadas
+  no Diário Oficial do TO, e todas conferem com o mesmo cálculo. O prefixo `29` não é exigido.
 - **Fonte:** http://www.sintegra.gov.br/Cad_Estados/cad_TO.html
 
 ---
@@ -349,12 +351,29 @@ inicial em SP); recusa "ISENTO"; recusa sequência de um dígito só repetido (`
 | GO | prefixo 10, 11, 20–29; sem regra de faixa | roteiro antigo/libs: 10, 11, 15; resto 1 na faixa 10103105–10119997 → DV 1; 11094402 → 0 ou 1 | aceita a união (10, 11, 15, 20–29) e as duas regras de DV nesses casos |
 | MS | 28 ou 50 | `js-brasil`: só 28 | 28 ou 50 |
 | PA | 15, 75–79 | `js-brasil`: 15 ou 75 | 15, 75–79 |
-| DF | composição começa com 07 | `js-brasil`: 07 ou 08; VB antigo: 073 | 07 (verificar 08) |
+| DF | composição começa com 07 | IEs reais publicadas no DODF começam com 08; ACBr e `js-brasil`: 07 ou 08 | 07 ou 08 |
 | AL | lista de "tipo de empresa" no 3º dígito | libs não validam | não valida o 3º dígito |
 | TO | só 11 dígitos | CIGAM/libs: 9 dígitos | aceita 9 e 11 |
 | PE | 9 e 14 dígitos | libs costumam ter só 9 | aceita 9 e 14 |
 | MT | 11 dígitos | `js-brasil`: 9 ou 11 sem completar | aceita 9–11 completando com zeros (equivalente) |
 | AM | ramo "soma < 11" | `js-brasil` ignora | segue o roteiro |
+
+## Conferência com inscrições reais (outubro de 2026)
+
+Além dos exemplos dos roteiros, as regras de DF, TO, GO, AL, MS, PA, RJ e AM foram conferidas contra
+inscrições reais publicadas em diários oficiais e editais das próprias UFs. Os números não são
+reproduzidos aqui; só o resultado:
+
+| UF | Resultado |
+|----|-----------|
+| DF | IEs reais com prefixo `07` e `08` conferem; a regra passou a aceitar `08` |
+| TO | IEs reais de 9 dígitos (formato atual) conferem com o mesmo cálculo do formato de 11 |
+| GO | IEs reais com prefixos `10` e `20` conferem; sem caso real encontrado para `15` nem para a faixa legada |
+| AL | IEs reais conferem, inclusive com 3º dígito fora da lista antiga do roteiro |
+| MS | IEs reais com prefixos `28` e `50` conferem |
+| PA | IEs reais com prefixo `15` conferem; `75`–`79` seguem o roteiro (sem caso real encontrado ainda) |
+| RJ | IEs reais conferem |
+| AM | Conferido com o roteiro; o ramo "soma < 11" só afeta números quase todos zero |
 
 ## Código de terceiros consultado (só regras; nenhum código copiado)
 
@@ -363,10 +382,11 @@ inicial em SP); recusa "ISENTO"; recusa sequência de um dígito só repetido (`
 | Roteiros SINTEGRA (inclui trechos VB/Java/Pascal de exemplo) | documento público oficial | fonte primária das regras |
 | `js-brasil` (`src/inscricaoestadual.ts`, github.com/mariohmol/js-brasil) | MIT | só comparação de regras (divergências acima) |
 | `Thiagocfn/InscricaoEstadual` (PHP) | MIT | só o README (observações por UF) |
+| ACBr (`ACBrValidador.pas`) | LGPL | só comparação de regras (prefixos de DF e PA) |
 | CIGAM wiki — formato da IE por estado | página pública | confirmação de tamanhos (TO 9 dígitos) |
 | Notícia COAD 24/07/2026 (Maranhão) | página pública | confirmação de que MA não mudou estrutura |
 
-Nenhuma fonte GPL foi usada. Nossa implementação é própria, sob MIT.
+Nenhum código de terceiros foi copiado. Nossa implementação é própria, sob MIT.
 
 ## Fontes
 

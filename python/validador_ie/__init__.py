@@ -186,8 +186,8 @@ def _ba(n: str) -> Optional[str]:
 
 
 def _df(n: str) -> Optional[str]:
-    if not n.startswith("07"):
-        return "prefixo inválido (esperado 07)"
+    if not n.startswith(("07", "08")):
+        return "prefixo inválido (esperado 07 ou 08)"
     return _ok(_dois13(n))
 
 

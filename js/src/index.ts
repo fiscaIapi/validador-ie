@@ -209,11 +209,11 @@ const REGRAS: Record<UF, Regra> = {
   // CE: 9 dígitos, módulo 11 padrão.
   CE: { tamanhos: [9], validar: nove(), mascara: m('########-#') },
 
-  // DF: 13 dígitos, começa com 07; mesmos pesos do AC.
+  // DF: 13 dígitos, começa com 07 ou 08 (as novas inscrições já saem com 08); mesmos pesos do AC.
   DF: {
     tamanhos: [13],
     validar: (n) => {
-      if (!n.startsWith('07')) return 'prefixo inválido (esperado 07)';
+      if (!prefixoEm(n, ['07', '08'])) return 'prefixo inválido (esperado 07 ou 08)';
       return dois13(n) ? null : MOTIVO_DV;
     },
     mascara: m('###########-##'),
