@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { validarIE, limparIE, UFS } from './index.ts';
 
 // Vetores VÁLIDOS. "ofic." = exemplo publicado no roteiro da UF no portal do SINTEGRA;
-// os demais são sintéticos, calculados pelo algoritmo (ver regras-por-uf.md).
+// os demais são sintéticos, calculados pelo algoritmo (ver REGRAS.md).
 const VALIDAS: Record<string, string[]> = {
   AC: ['0123456700124', '01.004.823/001-12' /* ofic. */],
   AL: ['240765435', '240000048' /* ofic. */, '240123450' /* resto 10 => 0 */],

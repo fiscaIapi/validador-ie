@@ -4,7 +4,7 @@ import pytest
 from validador_ie import UFS, ResultadoIE, limpar_ie, validar_ie
 
 # Vetores VÁLIDOS. "ofic." = exemplo publicado no roteiro da UF no portal do SINTEGRA;
-# os demais são sintéticos, calculados pelo algoritmo (ver regras-por-uf.md).
+# os demais são sintéticos, calculados pelo algoritmo (ver REGRAS.md).
 VALIDAS = {
     "AC": ["0123456700124", "01.004.823/001-12"],  # ofic.
     "AL": ["240765435", "240000048", "240123450"],  # ofic.; resto 10 => 0
