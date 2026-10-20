@@ -40,8 +40,8 @@ validarIE('110.042.490.114', 'SP');
 validarIE('P-01100424.3/002', 'SP'); // produtor rural
 // { valida: true, formatada: 'P-01100424.3/002', zerosCompletados: 0 }
 
-validarIE('24499080010', 'MG'); // sem os zeros à esquerda
-// { valida: true, formatada: '002.449.908/0010', zerosCompletados: 2 }
+validarIE('623079040081', 'MG'); // sem os zeros à esquerda
+// { valida: true, formatada: '062.307.904/0081', zerosCompletados: 1 }
 
 validarIE('062307904008', 'MG');
 // { valida: false, motivo: 'tamanho inválido (esperado 13 dígitos)' }
@@ -59,9 +59,9 @@ r = validar_ie("110.042.490.114", "SP")
 r.valida      # True
 r.formatada   # '110.042.490.114'
 
-r = validar_ie("24499080010", "MG")   # sem os zeros à esquerda
-r.formatada          # '002.449.908/0010'
-r.zeros_completados  # 2
+r = validar_ie("623079040081", "MG")   # sem os zeros à esquerda
+r.formatada          # '062.307.904/0081'
+r.zeros_completados  # 1
 
 r = validar_ie("0623079040082", "MG")
 r.valida      # False
@@ -76,7 +76,7 @@ if validar_ie("12345663", "BA"):   # o resultado também funciona como booleano
 - Com ou sem pontuação (`.`, `-`, `/`, espaços).
 - UF em maiúsculas ou minúsculas.
 - Sem os zeros à esquerda. A SEFAZ despreza zeros à esquerda antes de conferir a IE, e planilhas os
-  apagam (`0024499080010` vira `24499080010`). Quando a IE tem menos dígitos que o tamanho da UF, a
+  apagam (`0623079040081` vira `623079040081`). Quando a IE tem menos dígitos que o tamanho da UF, a
   biblioteca completa com zeros à esquerda e confere de novo; se conferir, `formatada` já sai com os
   zeros e `zerosCompletados` (`zeros_completados` no Python) diz quantos foram completados — vale
   mostrar isso a quem digitou. Nunca completa além do tamanho da UF, não remove zeros a mais e não

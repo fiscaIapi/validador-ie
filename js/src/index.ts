@@ -27,7 +27,7 @@ export interface ResultadoIE {
   /**
    * Quantos zeros à esquerda a biblioteca completou para a IE chegar ao tamanho
    * da UF (presente apenas quando `valida` é true; 0 quando a IE já veio completa).
-   * Ex.: "24499080010" em MG → 2 (a IE é 0024499080010).
+   * Ex.: "623079040081" em MG → 1 (a IE é 0623079040081).
    */
   zerosCompletados?: number;
 }

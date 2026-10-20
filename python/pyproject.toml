@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "validador-ie"
-version = "0.2.0"
+version = "0.2.1"
 description = "Valida formato e dígito verificador da Inscrição Estadual (IE) das 27 UFs. Sem dependências."
 readme = "README.md"
 license = "MIT"

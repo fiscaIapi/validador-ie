@@ -22,7 +22,7 @@
 
 O leiaute da NF-e manda a SEFAZ desprezar os zeros não significativos à esquerda da IE antes de
 conferi-la, e planilhas apagam esses zeros de células numéricas. Por isso é comum a IE chegar curta:
-`0024499080010` (MG, 13 dígitos) vira `24499080010`. A lib faz o seguinte:
+`0623079040081` (MG, 13 dígitos) vira `623079040081`. A lib faz o seguinte:
 
 - IE com **tamanho aceito pela UF**: confere como está. Nada é completado, mesmo que outro tamanho da
   UF também conferisse com zeros (ex.: BA de 8 dígitos não vira 9; RO de 9 dígitos não vira 14).

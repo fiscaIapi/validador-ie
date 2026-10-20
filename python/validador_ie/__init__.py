@@ -12,8 +12,8 @@ Uso::
     >>> from validador_ie import validar_ie
     >>> validar_ie("110.042.490.114", "SP")
     ResultadoIE(valida=True, motivo=None, formatada='110.042.490.114', zeros_completados=0)
-    >>> validar_ie("24499080010", "MG")  # sem os zeros à esquerda
-    ResultadoIE(valida=True, motivo=None, formatada='002.449.908/0010', zeros_completados=2)
+    >>> validar_ie("623079040081", "MG")  # sem os zeros à esquerda
+    ResultadoIE(valida=True, motivo=None, formatada='062.307.904/0081', zeros_completados=1)
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from typing import Callable, Optional, Sequence
 
 __all__ = ["UFS", "ResultadoIE", "validar_ie", "limpar_ie"]
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 UFS: tuple[str, ...] = (
     "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
@@ -42,7 +42,7 @@ class ResultadoIE:
     - ``formatada``: IE com a máscara usual da UF (apenas quando ``valida`` é True).
     - ``zeros_completados``: quantos zeros à esquerda a biblioteca completou para a
       IE chegar ao tamanho da UF (0 quando a IE já veio completa ou é inválida).
-      Ex.: ``"24499080010"`` em MG → 2 (a IE é 0024499080010).
+      Ex.: ``"623079040081"`` em MG → 1 (a IE é 0623079040081).
     """
 
     valida: bool

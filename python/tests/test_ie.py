@@ -131,15 +131,15 @@ def test_entradas_genericas():
 
 @pytest.mark.parametrize("ie,uf,formatada,zeros", [
     # A SEFAZ despreza zeros à esquerda e planilhas os comem: MG tem 13 dígitos.
-    ("24499080010", "MG", "002.449.908/0010", 2),
+    ("623079040081", "MG", "062.307.904/0081", 2),
     ("012345675010", "SP", "012.345.675.010", 0),
     ("12345675010", "SP", "012.345.675.010", 1),
     ("345678913", "PR", "034.56789-13", 1),
     ("961234563", "RS", "096/1234563", 1),
-    ("24499080010", "PE", "00.0.244.9908001-0", 3),  # só o formato de 14 comporta 11 dígitos
+    ("32141840", "PE", "0321418-40", 1),  # formato atual de 9 dígitos
     ("625213", "RO", "0000000062521-3", 8),  # formato atual (14) antes do antigo (9)
     ("130000019", "MT", "0013000001-9", 2),  # MT de 9 dígitos: zeros que a máscara põe
-    ("002.449.908/0010", "MG", "002.449.908/0010", 0),
+    ("062.307.904/0081", "MG", "062.307.904/0081", 0),
 ])
 def test_zeros_completados(ie, uf, formatada, zeros):
     assert validar_ie(ie, uf) == ResultadoIE(True, None, formatada, zeros)
@@ -150,9 +150,9 @@ def test_zeros_o_que_nao_muda():
     assert validar_ie("0623079040081", "MG").zeros_completados == 0
     assert validar_ie("12345663", "BA").zeros_completados == 0
     # Curta e errada: continua "tamanho inválido".
-    assert validar_ie("24499080011", "MG").motivo == "tamanho inválido (esperado 13 dígitos)"
+    assert validar_ie("623079040082", "MG").motivo == "tamanho inválido (esperado 13 dígitos)"
     # Maior que o tamanho da UF continua inválida (zeros a mais não são removidos).
-    assert validar_ie("00024499080010", "MG").motivo == "tamanho inválido (esperado 13 dígitos)"
+    assert validar_ie("00623079040081", "MG").motivo == "tamanho inválido (esperado 13 dígitos)"
     assert validar_ie("1100424901140", "SP").motivo == "tamanho inválido (esperado 12 dígitos ou P + 12 dígitos)"
     # Só zeros não vira IE.
     assert not validar_ie("000", "MG").valida

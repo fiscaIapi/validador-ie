@@ -154,19 +154,19 @@ test('entradas inválidas genéricas', () => {
 
 test('zeros à esquerda: IE curta é completada até o tamanho da UF', () => {
   // A SEFAZ despreza zeros à esquerda e planilhas os comem: MG tem 13 dígitos.
-  assert.deepEqual(validarIE('24499080010', 'MG'), { valida: true, formatada: '002.449.908/0010', zerosCompletados: 2 });
+  assert.deepEqual(validarIE('623079040081', 'MG'), { valida: true, formatada: '062.307.904/0081', zerosCompletados: 2 });
   assert.deepEqual(validarIE('012345675010', 'SP'), { valida: true, formatada: '012.345.675.010', zerosCompletados: 0 });
   assert.deepEqual(validarIE('12345675010', 'SP'), { valida: true, formatada: '012.345.675.010', zerosCompletados: 1 });
   assert.deepEqual(validarIE('345678913', 'PR'), { valida: true, formatada: '034.56789-13', zerosCompletados: 1 });
   assert.deepEqual(validarIE('961234563', 'RS'), { valida: true, formatada: '096/1234563', zerosCompletados: 1 });
-  // PE: só o formato de 14 dígitos comporta 11; com 3 zeros, confere.
-  assert.deepEqual(validarIE('24499080010', 'PE'), { valida: true, formatada: '00.0.244.9908001-0', zerosCompletados: 3 });
+  // PE: formato atual de 9 dígitos sem o zero da frente.
+  assert.deepEqual(validarIE('32141840', 'PE'), { valida: true, formatada: '0321418-40', zerosCompletados: 1 });
   // RO: o formato atual (14) antes do antigo (9).
   assert.deepEqual(validarIE('625213', 'RO'), { valida: true, formatada: '0000000062521-3', zerosCompletados: 8 });
   // MT de 9 ou 10 dígitos (tamanho aceito) também informa os zeros que a máscara põe.
   assert.equal(validarIE('130000019', 'MT').zerosCompletados, 2);
   // A forma formatada confere sem completar nada.
-  assert.equal(validarIE('002.449.908/0010', 'MG').zerosCompletados, 0);
+  assert.equal(validarIE('062.307.904/0081', 'MG').zerosCompletados, 0);
 });
 
 test('zeros à esquerda: o que não muda', () => {
@@ -174,9 +174,9 @@ test('zeros à esquerda: o que não muda', () => {
   assert.equal(validarIE('0623079040081', 'MG').zerosCompletados, 0);
   assert.equal(validarIE('12345663', 'BA').zerosCompletados, 0);
   // Curta e errada: continua "tamanho inválido".
-  assert.equal(validarIE('24499080011', 'MG').motivo, 'tamanho inválido (esperado 13 dígitos)');
+  assert.equal(validarIE('623079040082', 'MG').motivo, 'tamanho inválido (esperado 13 dígitos)');
   // Maior que o tamanho da UF continua inválida (zeros a mais não são removidos).
-  assert.equal(validarIE('00024499080010', 'MG').motivo, 'tamanho inválido (esperado 13 dígitos)');
+  assert.equal(validarIE('00623079040081', 'MG').motivo, 'tamanho inválido (esperado 13 dígitos)');
   assert.equal(validarIE('1100424901140', 'SP').motivo, 'tamanho inválido (esperado 12 dígitos ou P + 12 dígitos)');
   // Só zeros não vira IE.
   assert.equal(validarIE('000', 'MG').valida, false);
