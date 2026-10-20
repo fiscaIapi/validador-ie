@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  js:
+    name: JS/TS (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        node: ['22', '24']
+    defaults:
+      run:
+        working-directory: js
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - run: npm test
+      - name: Smoke test (pacote compilado)
+        run: node --input-type=module -e "import { validarIE } from './dist/index.js'; const r = validarIE('110.042.490.114', 'SP'); if (!r.valida) process.exit(1); console.log(r)"
+
+  js-node18:
+    name: JS/TS (Node 18, pacote compilado)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: js
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - run: node --input-type=module -e "import { validarIE } from './dist/index.js'; const r = validarIE('110.042.490.114', 'SP'); if (!r.valida) process.exit(1); console.log(r)"
+
+  python:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        python: ['3.9', '3.12', '3.13']
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --upgrade pip build ruff pytest
+      - run: ruff check .
+      - run: python -m build
+      - run: pip install dist/*.whl
+      - run: python -m pytest -q

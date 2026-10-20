@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "validador-ie"
+version = "0.1.0"
+description = "Valida formato e dígito verificador da Inscrição Estadual (IE) das 27 UFs. Sem dependências."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+authors = [{ name = "FiscalAPI", email = "contato@fiscalapi.com.br" }]
+keywords = ["inscricao estadual", "ie", "validacao", "digito verificador", "icms", "nfe", "brasil"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Natural Language :: Portuguese (Brazilian)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Office/Business :: Financial :: Accounting",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/fiscaIapi/validador-ie"
+Source = "https://github.com/fiscaIapi/validador-ie"
+Issues = "https://github.com/fiscaIapi/validador-ie/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["validador_ie"]
+
+[tool.hatch.build.targets.sdist]
+include = ["validador_ie", "tests", "README.md", "LICENSE"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]

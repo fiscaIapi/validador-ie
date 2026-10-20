@@ -1,0 +1,60 @@
+{
+  "name": "validador-ie",
+  "version": "0.1.0",
+  "description": "Valida formato e dígito verificador da Inscrição Estadual (IE) das 27 UFs. Sem dependências.",
+  "license": "MIT",
+  "author": {
+    "name": "FiscalAPI",
+    "email": "contato@fiscalapi.com.br",
+    "url": "https://fiscalapi.com.br"
+  },
+  "homepage": "https://github.com/fiscaIapi/validador-ie#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fiscaIapi/validador-ie.git",
+    "directory": "js"
+  },
+  "bugs": {
+    "url": "https://github.com/fiscaIapi/validador-ie/issues"
+  },
+  "keywords": [
+    "inscricao-estadual",
+    "ie",
+    "validacao",
+    "digito-verificador",
+    "icms",
+    "nfe",
+    "brasil"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test --experimental-strip-types src/index.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}
