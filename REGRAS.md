@@ -18,6 +18,26 @@
   CE, PB, PI, SE, RS, AC, DF. MS também cai nisso ("se R = 0 → 0; T = 11 − R; T > 9 → 0").
 - Máscaras são convenção de exibição; a lib ignora pontuação na entrada.
 
+## Zeros à esquerda
+
+O leiaute da NF-e manda a SEFAZ desprezar os zeros não significativos à esquerda da IE antes de
+conferi-la, e planilhas apagam esses zeros de células numéricas. Por isso é comum a IE chegar curta:
+`0024499080010` (MG, 13 dígitos) vira `24499080010`. A lib faz o seguinte:
+
+- IE com **tamanho aceito pela UF**: confere como está. Nada é completado, mesmo que outro tamanho da
+  UF também conferisse com zeros (ex.: BA de 8 dígitos não vira 9; RO de 9 dígitos não vira 14).
+- IE **mais curta** que um tamanho da UF: completa com zeros à esquerda até esse tamanho e confere de
+  novo. Com mais de um tamanho possível, tenta primeiro o de menos zeros (PE: 9, depois 14), exceto em
+  RO, que tenta o formato atual (14) antes do antigo (9). O resultado traz `zerosCompletados` e a
+  `formatada` já completa. Se nenhum tamanho conferir, o motivo é `tamanho inválido`.
+- IE **mais longa** que a UF aceita: inválida (zeros a mais não são removidos).
+- Só zeros (ou um dígito repetido, depois de completar) não é IE.
+- **SP, produtor rural (`P…`):** não é completada. O `P` faz da IE um texto (planilha não come zero
+  de texto) e o `0` logo depois do `P` é parte fixa do formato `P0MMMSSSSD000`; completar ali só
+  esconderia erro de digitação. A IE comum de SP (12 dígitos) é completada normalmente.
+- **MT:** 9 e 10 dígitos já eram aceitos e completados (é como a IE circula); agora o resultado
+  também informa esses zeros (`zerosCompletados` 2 ou 1).
+
 ## Resumo
 
 | UF | Dígitos | Máscara usual | DVs | Algoritmo | Prefixo exigido |
@@ -356,6 +376,7 @@ inicial em SP); recusa "ISENTO"; recusa sequência de um dígito só repetido (`
 | TO | só 11 dígitos | CIGAM/libs: 9 dígitos | aceita 9 e 11 |
 | PE | 9 e 14 dígitos | libs costumam ter só 9 | aceita 9 e 14 |
 | MT | 11 dígitos | `js-brasil`: 9 ou 11 sem completar | aceita 9–11 completando com zeros (equivalente) |
+| Todas | MOC NF-e: SEFAZ despreza zeros à esquerda | libs costumam recusar a IE curta | completa zeros até o tamanho da UF e informa quantos |
 | AM | ramo "soma < 11" | `js-brasil` ignora | segue o roteiro |
 
 ## Conferência com inscrições reais (outubro de 2026)

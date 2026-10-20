@@ -1,6 +1,6 @@
 {
   "name": "validador-ie",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Valida formato e dígito verificador da Inscrição Estadual (IE) das 27 UFs. Sem dependências.",
   "license": "MIT",
   "author": {

@@ -10,6 +10,7 @@ seguindo os roteiros de cálculo publicados por cada Unidade da Federação.
   (módulo 10 ou 11), PE e RO em formato antigo e atual, RN com 9 ou 10 dígitos, AP por faixa e RR em módulo 9.
 - Sem dependências. Mesma regra e mesmos vetores de teste em **JavaScript/TypeScript** e **Python**.
 - Devolve o motivo da recusa e a IE formatada com a máscara usual da UF.
+- Aceita a IE sem os zeros à esquerda (como sai de planilhas): completa até o tamanho da UF e avisa.
 
 | Linguagem | Pasta | Pacote |
 |---|---|---|
@@ -34,10 +35,13 @@ pip install validador-ie
 import { validarIE } from 'validador-ie';
 
 validarIE('110.042.490.114', 'SP');
-// { valida: true, formatada: '110.042.490.114' }
+// { valida: true, formatada: '110.042.490.114', zerosCompletados: 0 }
 
 validarIE('P-01100424.3/002', 'SP'); // produtor rural
-// { valida: true, formatada: 'P-01100424.3/002' }
+// { valida: true, formatada: 'P-01100424.3/002', zerosCompletados: 0 }
+
+validarIE('24499080010', 'MG'); // sem os zeros à esquerda
+// { valida: true, formatada: '002.449.908/0010', zerosCompletados: 2 }
 
 validarIE('062307904008', 'MG');
 // { valida: false, motivo: 'tamanho inválido (esperado 13 dígitos)' }
@@ -55,6 +59,10 @@ r = validar_ie("110.042.490.114", "SP")
 r.valida      # True
 r.formatada   # '110.042.490.114'
 
+r = validar_ie("24499080010", "MG")   # sem os zeros à esquerda
+r.formatada          # '002.449.908/0010'
+r.zeros_completados  # 2
+
 r = validar_ie("0623079040082", "MG")
 r.valida      # False
 r.motivo      # 'dígito verificador inválido'
@@ -67,7 +75,12 @@ if validar_ie("12345663", "BA"):   # o resultado também funciona como booleano
 
 - Com ou sem pontuação (`.`, `-`, `/`, espaços).
 - UF em maiúsculas ou minúsculas.
-- Em MT, a IE pode vir sem os zeros à esquerda.
+- Sem os zeros à esquerda. A SEFAZ despreza zeros à esquerda antes de conferir a IE, e planilhas os
+  apagam (`0024499080010` vira `24499080010`). Quando a IE tem menos dígitos que o tamanho da UF, a
+  biblioteca completa com zeros à esquerda e confere de novo; se conferir, `formatada` já sai com os
+  zeros e `zerosCompletados` (`zeros_completados` no Python) diz quantos foram completados — vale
+  mostrar isso a quem digitou. Nunca completa além do tamanho da UF, não remove zeros a mais e não
+  mexe em IE do tamanho certo. A IE de produtor rural de SP (`P…`) não é completada.
 - `ISENTO` é recusado com motivo próprio (não há número a validar).
 
 ### Motivos de recusa

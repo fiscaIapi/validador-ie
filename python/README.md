@@ -14,6 +14,10 @@ r = validar_ie("110.042.490.114", "SP")
 r.valida      # True
 r.formatada   # '110.042.490.114'
 
+r = validar_ie("24499080010", "MG")   # sem os zeros à esquerda: completa e avisa
+r.formatada          # '002.449.908/0010'
+r.zeros_completados  # 2
+
 r = validar_ie("0623079040082", "MG")
 r.motivo      # 'dígito verificador inválido'
 

@@ -24,6 +24,12 @@ export interface ResultadoIE {
   motivo?: string;
   /** IE com a máscara usual da UF (presente apenas quando `valida` é true). */
   formatada?: string;
+  /**
+   * Quantos zeros à esquerda a biblioteca completou para a IE chegar ao tamanho
+   * da UF (presente apenas quando `valida` é true; 0 quando a IE já veio completa).
+   * Ex.: "24499080010" em MG → 2 (a IE é 0024499080010).
+   */
+  zerosCompletados?: number;
 }
 
 /** Retorna null quando a IE confere; caso contrário, o motivo da recusa. */
@@ -32,6 +38,11 @@ type Validador = (n: string) => string | null;
 interface Regra {
   /** Quantidades de dígitos aceitas (sem pontuação; para SP-produtor, conta o "P"). */
   tamanhos: readonly number[];
+  /**
+   * Ordem dos tamanhos tentados ao completar zeros à esquerda de uma IE curta
+   * (padrão: `tamanhos`, do menor ao maior — o formato com menos zeros).
+   */
+  completar?: readonly number[];
   validar: Validador;
   mascara: (n: string) => string;
 }
@@ -345,6 +356,9 @@ const REGRAS: Record<UF, Regra> = {
   // RO: 14 dígitos (desde 08/2000) ou 9 dígitos (formato antigo, município + empresa).
   RO: {
     tamanhos: [9, 14],
+    // Completando zeros, o formato atual (14) vem antes do antigo (9, fora de uso
+    // desde 2000): a mesma IE curta costuma conferir nos dois.
+    completar: [14, 9],
     validar: (n) => {
       if (n.length === 14) {
         const dv = dvMod11Menos10(somaPonderada(n, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]));
@@ -451,18 +465,35 @@ export function validarIE(ie: string, uf: string): ResultadoIE {
   const digitos = produtorSP ? n.slice(1) : n;
   if (!/^\d+$/.test(digitos)) return { valida: false, motivo: 'caracteres inválidos' };
 
-  const tamanhoOk =
-    sigla === 'SP' ? n.length === (produtorSP ? 13 : 12) : regra.tamanhos.includes(n.length);
-  if (!tamanhoOk) {
+  const tamanhos = sigla === 'SP' ? [produtorSP ? 13 : 12] : regra.tamanhos;
+  if (!tamanhos.includes(n.length)) {
     const esperado =
       sigla === 'SP' ? '12 dígitos ou P + 12 dígitos' : `${regra.tamanhos.join(' ou ')} dígitos`;
-    return { valida: false, motivo: `tamanho inválido (esperado ${esperado})` };
+    const recusa: ResultadoIE = { valida: false, motivo: `tamanho inválido (esperado ${esperado})` };
+    // IE curta: a SEFAZ despreza os zeros à esquerda (e planilhas os comem). Completa
+    // com zeros até um tamanho da UF e confere de novo. Não vale para o produtor
+    // rural de SP: o "P" faz da IE um texto, que não perde zeros, e o 0 depois do
+    // "P" é parte fixa do formato.
+    if (produtorSP) return recusa;
+    for (const tam of regra.completar ?? tamanhos) {
+      if (tam <= n.length) continue;
+      const completa = n.padStart(tam, '0');
+      if (/^(\d)\1*$/.test(completa)) continue;
+      if (regra.validar(completa) === null) return aceita(regra, completa, n.length);
+    }
+    return recusa;
   }
   if (/^(\d)\1*$/.test(digitos)) return { valida: false, motivo: 'sequência de dígitos repetidos' };
 
   const falha = regra.validar(n);
   if (falha) return { valida: false, motivo: falha };
-  return { valida: true, formatada: regra.mascara(n) };
+  return aceita(regra, n, n.length);
+}
+
+/** Resultado válido. Os zeros completados contam também os que a máscara põe (MT de 9 ou 10 dígitos). */
+function aceita(regra: Regra, n: string, tamanhoEntrada: number): ResultadoIE {
+  const formatada = regra.mascara(n);
+  return { valida: true, formatada, zerosCompletados: formatada.replace(/[^\dP]/g, '').length - tamanhoEntrada };
 }
 
 export default validarIE;

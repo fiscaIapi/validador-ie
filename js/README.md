@@ -11,7 +11,10 @@ npm install validador-ie
 import { validarIE, limparIE, UFS } from 'validador-ie';
 
 validarIE('110.042.490.114', 'SP');
-// { valida: true, formatada: '110.042.490.114' }
+// { valida: true, formatada: '110.042.490.114', zerosCompletados: 0 }
+
+validarIE('24499080010', 'MG'); // sem os zeros à esquerda: completa e avisa
+// { valida: true, formatada: '002.449.908/0010', zerosCompletados: 2 }
 
 validarIE('0623079040082', 'MG');
 // { valida: false, motivo: 'dígito verificador inválido' }

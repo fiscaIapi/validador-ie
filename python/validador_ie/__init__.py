@@ -11,7 +11,9 @@ Uso::
 
     >>> from validador_ie import validar_ie
     >>> validar_ie("110.042.490.114", "SP")
-    ResultadoIE(valida=True, motivo=None, formatada='110.042.490.114')
+    ResultadoIE(valida=True, motivo=None, formatada='110.042.490.114', zeros_completados=0)
+    >>> validar_ie("24499080010", "MG")  # sem os zeros à esquerda
+    ResultadoIE(valida=True, motivo=None, formatada='002.449.908/0010', zeros_completados=2)
 """
 
 from __future__ import annotations
@@ -21,7 +23,7 @@ from dataclasses import dataclass
 from typing import Callable, Optional, Sequence
 
 __all__ = ["UFS", "ResultadoIE", "validar_ie", "limpar_ie"]
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 UFS: tuple[str, ...] = (
     "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
@@ -38,11 +40,15 @@ class ResultadoIE:
     - ``valida``: True quando formato e dígito(s) verificador(es) conferem.
     - ``motivo``: motivo da recusa (apenas quando ``valida`` é False).
     - ``formatada``: IE com a máscara usual da UF (apenas quando ``valida`` é True).
+    - ``zeros_completados``: quantos zeros à esquerda a biblioteca completou para a
+      IE chegar ao tamanho da UF (0 quando a IE já veio completa ou é inválida).
+      Ex.: ``"24499080010"`` em MG → 2 (a IE é 0024499080010).
     """
 
     valida: bool
     motivo: Optional[str] = None
     formatada: Optional[str] = None
+    zeros_completados: int = 0
 
     def __bool__(self) -> bool:  # permite `if validar_ie(...):`
         return self.valida
@@ -295,6 +301,9 @@ class _Regra:
     tamanhos: tuple[int, ...]
     validar: Callable[[str], Optional[str]]
     mascara: Callable[[str], str]
+    # Ordem dos tamanhos tentados ao completar zeros à esquerda de uma IE curta
+    # (vazio: ``tamanhos``, do menor ao maior — o formato com menos zeros).
+    completar: tuple[int, ...] = ()
 
 
 _REGRAS: dict[str, _Regra] = {
@@ -319,7 +328,11 @@ _REGRAS: dict[str, _Regra] = {
     "RJ": _Regra((8,), _rj, _m("##.###.##-#")),
     "RN": _Regra((9, 10), _rn, lambda n: _mascara(n, "##.###.###-#" if len(n) == 9 else "##.#.###.###-#")),
     "RS": _Regra((10,), _rs, _m("###/#######")),
-    "RO": _Regra((9, 14), _ro, lambda n: _mascara(n, "#############-#" if len(n) == 14 else "###.#####-#")),
+    # Completando zeros, o formato atual (14) vem antes do antigo (9, fora de uso
+    # desde 2000): a mesma IE curta costuma conferir nos dois.
+    "RO": _Regra(
+        (9, 14), _ro, lambda n: _mascara(n, "#############-#" if len(n) == 14 else "###.#####-#"), completar=(14, 9)
+    ),
     "RR": _Regra((9,), _rr, _m("########-#")),
     "SC": _Regra((9,), _nove(), _m("###.###.###")),
     "SP": _Regra((12, 13), _sp, lambda n: _mascara(n, "#-########.#/###" if n[0] == "P" else "###.###.###.###")),
@@ -366,18 +379,39 @@ def validar_ie(ie: str, uf: str) -> ResultadoIE:
     if not (digitos.isascii() and digitos.isdigit()):
         return ResultadoIE(False, "caracteres inválidos")
 
-    if sigla == "SP":
-        tamanho_ok = len(n) == (13 if produtor_sp else 12)
-        esperado = "12 dígitos ou P + 12 dígitos"
-    else:
-        tamanho_ok = len(n) in regra.tamanhos
-        esperado = " ou ".join(str(t) for t in regra.tamanhos) + " dígitos"
-    if not tamanho_ok:
-        return ResultadoIE(False, f"tamanho inválido (esperado {esperado})")
+    tamanhos = ((13 if produtor_sp else 12),) if sigla == "SP" else regra.tamanhos
+    if len(n) not in tamanhos:
+        esperado = (
+            "12 dígitos ou P + 12 dígitos"
+            if sigla == "SP"
+            else " ou ".join(str(t) for t in regra.tamanhos) + " dígitos"
+        )
+        recusa = ResultadoIE(False, f"tamanho inválido (esperado {esperado})")
+        # IE curta: a SEFAZ despreza os zeros à esquerda (e planilhas os comem).
+        # Completa com zeros até um tamanho da UF e confere de novo. Não vale para
+        # o produtor rural de SP: o "P" faz da IE um texto, que não perde zeros, e
+        # o 0 depois do "P" é parte fixa do formato.
+        if produtor_sp:
+            return recusa
+        for tam in regra.completar or tamanhos:
+            if tam <= len(n):
+                continue
+            completa = n.zfill(tam)
+            if _REPETIDO.match(completa):
+                continue
+            if regra.validar(completa) is None:
+                return _aceita(regra, completa, len(n))
+        return recusa
     if _REPETIDO.match(digitos):
         return ResultadoIE(False, "sequência de dígitos repetidos")
 
     falha = regra.validar(n)
     if falha:
         return ResultadoIE(False, falha)
-    return ResultadoIE(True, None, regra.mascara(n))
+    return _aceita(regra, n, len(n))
+
+
+def _aceita(regra: _Regra, n: str, tamanho_entrada: int) -> ResultadoIE:
+    """Resultado válido. Os zeros completados contam também os que a máscara põe (MT de 9 ou 10 dígitos)."""
+    formatada = regra.mascara(n)
+    return ResultadoIE(True, None, formatada, sum(c.isdigit() or c == "P" for c in formatada) - tamanho_entrada)
