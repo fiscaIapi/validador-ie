@@ -154,7 +154,7 @@ test('entradas inválidas genéricas', () => {
 
 test('zeros à esquerda: IE curta é completada até o tamanho da UF', () => {
   // A SEFAZ despreza zeros à esquerda e planilhas os comem: MG tem 13 dígitos.
-  assert.deepEqual(validarIE('623079040081', 'MG'), { valida: true, formatada: '062.307.904/0081', zerosCompletados: 2 });
+  assert.deepEqual(validarIE('623079040081', 'MG'), { valida: true, formatada: '062.307.904/0081', zerosCompletados: 1 });
   assert.deepEqual(validarIE('012345675010', 'SP'), { valida: true, formatada: '012.345.675.010', zerosCompletados: 0 });
   assert.deepEqual(validarIE('12345675010', 'SP'), { valida: true, formatada: '012.345.675.010', zerosCompletados: 1 });
   assert.deepEqual(validarIE('345678913', 'PR'), { valida: true, formatada: '034.56789-13', zerosCompletados: 1 });

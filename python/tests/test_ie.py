@@ -131,7 +131,7 @@ def test_entradas_genericas():
 
 @pytest.mark.parametrize("ie,uf,formatada,zeros", [
     # A SEFAZ despreza zeros à esquerda e planilhas os comem: MG tem 13 dígitos.
-    ("623079040081", "MG", "062.307.904/0081", 2),
+    ("623079040081", "MG", "062.307.904/0081", 1),
     ("012345675010", "SP", "012.345.675.010", 0),
     ("12345675010", "SP", "012.345.675.010", 1),
     ("345678913", "PR", "034.56789-13", 1),
